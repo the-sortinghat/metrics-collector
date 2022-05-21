@@ -1,1 +1,1 @@
-rootProject.name = "metrics_collector"
+rootProject.name = "metrics_extractor"

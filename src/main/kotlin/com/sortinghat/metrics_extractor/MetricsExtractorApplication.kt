@@ -1,11 +1,11 @@
-package com.sortinghat.metrics_collector
+package com.sortinghat.metrics_extractor
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class MetricsCollectorApplication
+class MetricsExtractorApplication
 
 fun main(args: Array<String>) {
-	runApplication<MetricsCollectorApplication>(*args)
+	runApplication<MetricsExtractorApplication>(*args)
 }
