@@ -1,4 +1,4 @@
-package com.sortinghat.metrics_collector.domain.model
+package com.sortinghat.metrics_extractor.domain.model
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
