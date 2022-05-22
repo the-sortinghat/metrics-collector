@@ -10,7 +10,7 @@ class DeploymentDependencyMetric: MetricExtractor {
         val value = system.services
             .groupBy { it.module }
             .values
-            .filter { it.size > 1}
+            .filter { it.size > 1 }
             .flatten()
             .size
 
