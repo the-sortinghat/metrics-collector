@@ -1,6 +1,6 @@
 package com.sortinghat.metrics_extractor.domain.services
 
-import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentMetric
+import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentResult
 import com.sortinghat.metrics_extractor.domain.model.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -43,7 +43,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
     @Test
     fun `should return 0 for all services and modules when there is no async communications`() {
         val system = createSystem()
-        val expected = PerComponentMetric(
+        val expected = PerComponentResult(
             modules = system.modules.associateWith { 0 },
             services = system.services.associateWith { 0 }
         )
@@ -69,7 +69,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentMetric).services
+        val actual = (metricExtractor.execute(system) as PerComponentResult).services
 
         assertEquals(expected, actual)
     }
@@ -102,7 +102,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentMetric).modules
+        val actual = (metricExtractor.execute(system) as PerComponentResult).modules
 
         assertEquals(expected, actual)
     }
@@ -135,7 +135,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentMetric).modules
+        val actual = (metricExtractor.execute(system) as PerComponentResult).modules
 
         assertEquals(expected, actual)
     }

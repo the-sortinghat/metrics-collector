@@ -2,7 +2,7 @@ package com.sortinghat.metrics_extractor.domain.services
 
 import com.sortinghat.metrics_extractor.domain.behaviors.ExtractionResult
 import com.sortinghat.metrics_extractor.domain.behaviors.MetricExtractor
-import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentMetric
+import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentResult
 import com.sortinghat.metrics_extractor.domain.model.System
 
 /**
@@ -20,7 +20,7 @@ class ClientsThatConsumeMessagesPublishedMetric: MetricExtractor {
             .groupBy { it.from }
             .mapValues { it.value.size }
 
-        return PerComponentMetric(
+        return PerComponentResult(
             modules = system.modules.associateWith { forModules[it] ?: 0 },
             services = system.services.associateWith { forServices[it] ?: 0 }
         )

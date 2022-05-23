@@ -2,7 +2,7 @@ package com.sortinghat.metrics_extractor.domain.services
 
 import com.sortinghat.metrics_extractor.domain.behaviors.ExtractionResult
 import com.sortinghat.metrics_extractor.domain.behaviors.MetricExtractor
-import com.sortinghat.metrics_extractor.domain.behaviors.NumberMetric
+import com.sortinghat.metrics_extractor.domain.behaviors.NumberResult
 import com.sortinghat.metrics_extractor.domain.model.System
 
 class DeploymentDependencyMetric: MetricExtractor {
@@ -14,6 +14,6 @@ class DeploymentDependencyMetric: MetricExtractor {
             .flatten()
             .size
 
-        return NumberMetric(value)
+        return NumberResult(value)
     }
 }

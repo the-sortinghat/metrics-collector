@@ -1,6 +1,6 @@
 package com.sortinghat.metrics_extractor.domain.services
 
-import com.sortinghat.metrics_extractor.domain.behaviors.NumberMetric
+import com.sortinghat.metrics_extractor.domain.behaviors.NumberResult
 import com.sortinghat.metrics_extractor.domain.model.Module
 import com.sortinghat.metrics_extractor.domain.model.Service
 import org.junit.jupiter.api.Assertions.*
@@ -46,7 +46,7 @@ class DeploymentDependencyMetricTest {
     fun `should return zero for a system with no services with deployment dependency`() {
         val system = createSystem()
         val dependencyMetric = DeploymentDependencyMetric()
-        val (value) = dependencyMetric.execute(system) as NumberMetric
+        val (value) = dependencyMetric.execute(system) as NumberResult
 
         assertEquals(0, value)
     }
@@ -83,7 +83,7 @@ class DeploymentDependencyMetricTest {
         )
 
         val dependencyMetric = DeploymentDependencyMetric()
-        val (value) = dependencyMetric.execute(system) as NumberMetric
+        val (value) = dependencyMetric.execute(system) as NumberResult
 
         assertEquals(5, value)
     }
