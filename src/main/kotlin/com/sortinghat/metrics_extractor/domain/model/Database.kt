@@ -23,7 +23,7 @@ data class Database(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Service) return false
+        if (other !is Database) return false
 
         if (id != other.id) return false
         return true
