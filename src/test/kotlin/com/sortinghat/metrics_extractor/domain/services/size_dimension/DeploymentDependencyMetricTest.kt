@@ -1,4 +1,4 @@
-package com.sortinghat.metrics_extractor.domain.services
+package com.sortinghat.metrics_extractor.domain.services.size_dimension
 
 import com.sortinghat.metrics_extractor.domain.behaviors.NumberResult
 import com.sortinghat.metrics_extractor.domain.model.Module

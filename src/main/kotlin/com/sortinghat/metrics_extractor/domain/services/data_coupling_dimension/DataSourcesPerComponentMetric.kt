@@ -1,4 +1,4 @@
-package com.sortinghat.metrics_extractor.domain.services
+package com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension
 
 import com.sortinghat.metrics_extractor.domain.behaviors.ExtractionResult
 import com.sortinghat.metrics_extractor.domain.behaviors.MetricExtractor
@@ -6,8 +6,8 @@ import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentResult
 import com.sortinghat.metrics_extractor.domain.model.System
 
 /**
- * Number of clients that consume messages published by a given component
- * Dimension: Async Coupling
+ * Number of data sources per component
+ * Dimension: Data Coupling
  */
 class DataSourcesPerComponentMetric: MetricExtractor {
     override fun execute(system: System): ExtractionResult {

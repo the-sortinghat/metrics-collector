@@ -1,4 +1,4 @@
-package com.sortinghat.metrics_extractor.domain.services
+package com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension
 
 import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentResult
 import com.sortinghat.metrics_extractor.domain.model.*
