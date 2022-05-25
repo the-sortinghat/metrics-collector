@@ -20,4 +20,8 @@ class DeploymentDependencyMetric: MetricExtractor {
 
         return NumberResult(value)
     }
+
+    override fun getMetricDescription(): String {
+        return "Number of services with deployment dependency"
+    }
 }

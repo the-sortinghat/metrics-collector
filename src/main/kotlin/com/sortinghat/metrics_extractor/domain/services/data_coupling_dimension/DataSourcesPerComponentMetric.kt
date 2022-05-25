@@ -25,4 +25,8 @@ class DataSourcesPerComponentMetric: MetricExtractor {
             services = system.services.associateWith { forServices[it] ?: 0 }
         )
     }
+
+    override fun getMetricDescription(): String {
+        return "Number of data sources per component"
+    }
 }

@@ -25,4 +25,8 @@ class ClientsThatConsumeMessagesPublishedMetric: MetricExtractor {
             services = system.services.associateWith { forServices[it] ?: 0 }
         )
     }
+
+    override fun getMetricDescription(): String {
+        return "Number of clients that consume messages published by a given component"
+    }
 }

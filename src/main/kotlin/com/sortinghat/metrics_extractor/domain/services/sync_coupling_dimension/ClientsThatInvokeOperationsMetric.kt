@@ -27,4 +27,8 @@ class ClientsThatInvokeOperationsMetric: MetricExtractor {
             services = system.services.associateWith { forServices[it] ?: 0 }
         )
     }
+
+    override fun getMetricDescription(): String {
+        return "Number of clients that invoke the operations of a given component"
+    }
 }
