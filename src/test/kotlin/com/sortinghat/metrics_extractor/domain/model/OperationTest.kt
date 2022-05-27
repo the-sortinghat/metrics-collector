@@ -20,6 +20,6 @@ class OperationTest {
 
     @Test
     fun `throws an exception when url is not valid`() {
-        assertThrows<IllegalArgumentException> { Operation.fromString("SOME/users/{id}") }
+        assertThrows<IllegalArgumentException> { Operation.fromString("GETdf000users{id}") }
     }
 }
