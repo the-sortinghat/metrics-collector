@@ -2,7 +2,7 @@ package com.sortinghat.metrics_extractor.domain.model
 
 @Suppress("unused")
 enum class DataSource {
-    MySql, PostgreSql, MariaDb,
+    MySql, Postgres, MariaDb,
     CassandraDb, MongoDb, Redis,
     SqlServer, Oracle, Neo4j,
     PlainText, Relational, Document,
