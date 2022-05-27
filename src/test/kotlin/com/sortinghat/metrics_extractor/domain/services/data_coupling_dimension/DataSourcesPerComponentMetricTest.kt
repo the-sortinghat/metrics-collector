@@ -63,9 +63,9 @@ class DataSourcesPerComponentMetricTest {
         val system = createSystem()
         val services = system.services.toList()
         val expected = mapOf(
-            services[0] to 1,
-            services[1] to 1,
-            services[2] to 1,
+            services[0].name to 1,
+            services[1].name to 1,
+            services[2].name to 1,
         )
 
         val metricExtractor = DataSourcesPerComponentMetric()
@@ -96,9 +96,9 @@ class DataSourcesPerComponentMetricTest {
 
         val modules = system.modules.toList()
         val expected = mapOf(
-            modules[0] to 1,
-            modules[1] to 1,
-            modules[2] to 2,
+            modules[0].name to 1,
+            modules[1].name to 1,
+            modules[2].name to 2,
         )
 
         val metricExtractor = DataSourcesPerComponentMetric()
@@ -129,9 +129,9 @@ class DataSourcesPerComponentMetricTest {
 
         val modules = system.modules.toList()
         val expected = mapOf(
-            modules[0] to 1,
-            modules[1] to 1,
-            modules[2] to 1,
+            modules[0].name to 1,
+            modules[1].name to 1,
+            modules[2].name to 1,
         )
 
         val metricExtractor = DataSourcesPerComponentMetric()

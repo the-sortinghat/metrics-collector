@@ -34,8 +34,8 @@ class SharedDatabasesMetric: MetricExtractor {
             }
 
         return PerComponentResult(
-            modules = modules,
-            services = services
+            modules = modules.mapKeys { it.key.name },
+            services = services.mapKeys { it.key.name }
         )
     }
 

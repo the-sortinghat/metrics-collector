@@ -50,9 +50,9 @@ class ClientsThatInvokeOperationsMetricTest {
         system.addSyncOperation(SyncCommunication(services[1], services[2], Operation.fromString("GET /users/{id}")))
 
         val expected = mapOf(
-            services[0] to 0,
-            services[1] to 1,
-            services[2] to 1
+            services[0].name to 0,
+            services[1].name to 1,
+            services[2].name to 1
         )
 
         val metricExtractor = ClientsThatInvokeOperationsMetric()
@@ -85,9 +85,9 @@ class ClientsThatInvokeOperationsMetricTest {
         system.addSyncOperation(SyncCommunication(services[3], services[2], Operation.fromString("GET /foo")))
 
         val expected = mapOf(
-            modules[0] to 0,
-            modules[1] to 1,
-            modules[2] to 2
+            modules[0].name to 0,
+            modules[1].name to 1,
+            modules[2].name to 2
         )
 
         val metricExtractor = ClientsThatInvokeOperationsMetric()

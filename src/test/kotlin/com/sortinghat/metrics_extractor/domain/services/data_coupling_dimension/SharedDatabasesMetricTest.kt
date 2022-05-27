@@ -62,9 +62,9 @@ class SharedDatabasesMetricTest {
         val system = createSystem()
         val services = system.services.toList()
         val expected = mapOf(
-            services[0] to 1,
-            services[1] to 1,
-            services[2] to 0,
+            services[0].name to 1,
+            services[1].name to 1,
+            services[2].name to 0,
         )
         val metricExtractor = SharedDatabasesMetric()
         val actual = (metricExtractor.execute(system) as PerComponentResult).services
@@ -77,9 +77,9 @@ class SharedDatabasesMetricTest {
         val system = createSystem()
         val modules = system.modules.toList()
         val expected = mapOf(
-            modules[0] to 1,
-            modules[1] to 1,
-            modules[2] to 0,
+            modules[0].name to 1,
+            modules[1].name to 1,
+            modules[2].name to 0,
         )
         val metricExtractor = SharedDatabasesMetric()
         val actual = (metricExtractor.execute(system) as PerComponentResult).modules
@@ -108,9 +108,9 @@ class SharedDatabasesMetricTest {
 
         val modules = system.modules.toList()
         val expected = mapOf(
-            modules[0] to 1,
-            modules[1] to 1,
-            modules[2] to 0,
+            modules[0].name to 1,
+            modules[1].name to 1,
+            modules[2].name to 0,
         )
         val metricExtractor = SharedDatabasesMetric()
         val actual = (metricExtractor.execute(system) as PerComponentResult).modules

@@ -21,8 +21,8 @@ class DataSourcesPerComponentMetric: MetricExtractor {
             .mapValues { it.value.size }
 
         return PerComponentResult(
-            modules = system.modules.associateWith { forModules[it] ?: 0 },
-            services = system.services.associateWith { forServices[it] ?: 0 }
+            modules = system.modules.associateWith { forModules[it] ?: 0 }.mapKeys { it.key.name },
+            services = system.services.associateWith { forServices[it] ?: 0 }.mapKeys { it.key.name }
         )
     }
 

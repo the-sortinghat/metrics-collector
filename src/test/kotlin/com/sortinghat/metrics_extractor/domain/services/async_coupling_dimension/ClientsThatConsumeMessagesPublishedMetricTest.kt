@@ -44,8 +44,8 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
     fun `should return 0 for all services and modules when there is no async communications`() {
         val system = createSystem()
         val expected = PerComponentResult(
-            modules = system.modules.associateWith { 0 },
-            services = system.services.associateWith { 0 }
+            modules = system.modules.associateWith { 0 }.mapKeys { it.key.name },
+            services = system.services.associateWith { 0 }.mapKeys { it.key.name }
         )
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
         val actual = metricExtractor.execute(system)
@@ -63,9 +63,9 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         system.addAsyncOperation(AsyncCommunication(services[1], services[2], MessageChannel("Topic3")))
 
         val expected = mapOf(
-            services[0] to 2,
-            services[1] to 1,
-            services[2] to 0
+            services[0].name to 2,
+            services[1].name to 1,
+            services[2].name to 0
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
@@ -96,9 +96,9 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         system.addAsyncOperation(AsyncCommunication(services[3], services[2], MessageChannel("Topic4")))
 
         val expected = mapOf(
-            modules[0] to 3,
-            modules[1] to 1,
-            modules[2] to 0
+            modules[0].name to 3,
+            modules[1].name to 1,
+            modules[2].name to 0
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
@@ -129,9 +129,9 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         system.addAsyncOperation(AsyncCommunication(services[3], services[0], MessageChannel("Topic4")))
 
         val expected = mapOf(
-            modules[0] to 2,
-            modules[1] to 1,
-            modules[2] to 0
+            modules[0].name to 2,
+            modules[1].name to 1,
+            modules[2].name to 0
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
