@@ -34,7 +34,7 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Jar> {
 	manifest {
-		attributes["Main-Class"] = "com.sortinghat.metrics_extractor.MetricsExtractorApplicationKt"
+		attributes["Main-Class"] = "com.sortinghat.metrics_extractor.MainKt"
 	}
 }
 
