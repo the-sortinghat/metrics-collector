@@ -1,97 +1,102 @@
 package com.sortinghat.metrics_extractor.domain.services.sync_coupling_dimension
 
-import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentResult
-import com.sortinghat.metrics_extractor.domain.model.*
+import com.sortinghat.metrics_extractor.domain.model.Module
+import com.sortinghat.metrics_extractor.domain.model.Operation
+import com.sortinghat.metrics_extractor.domain.model.Service
+import com.sortinghat.metrics_extractor.domain.model.ServiceBasedSystem
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class ClientsThatInvokeOperationsMetricTest {
 
-    private fun createSystem(): System {
-        val system = System(id = "1", name = "InterSCity", "")
-        system.addService(
+    private fun createServices(): MutableList<Service> {
+        val system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
+        return mutableListOf(
             Service(
-                id = "1",
                 name = "Resource Adaptor",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "1", "Resource Adaptor")
-            )
-        )
-        system.addService(
+                module = Module("Resource Adaptor"),
+                system = system
+            ),
             Service(
-                id = "2",
                 name = "Resource Catalogue",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "2", "Resource Catalog")
-            )
-        )
-        system.addService(
+                module = Module("Resource Catalogue"),
+                system = system
+            ),
             Service(
-                id = "3",
                 name = "Data Collector",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "3", "Data Collector")
+                module = Module("Data Collector"),
+                system = system
             )
         )
-
-        return system
     }
 
     @Test
-    fun `should compute the number of services that invoke the operations of a given service`() {
-        val system = createSystem()
-        val services = system.services.toList()
+    fun `should compute the number of different services that invoke the operations of a given service`() {
+        val services = createServices()
 
-        system.addSyncOperation(SyncCommunication(services[0], services[1], Operation.fromString("GET /users")))
-        system.addSyncOperation(SyncCommunication(services[1], services[2], Operation.fromString("POST /users")))
-        system.addSyncOperation(SyncCommunication(services[1], services[2], Operation.fromString("GET /users/{id}")))
+        services[0].expose(Operation.fromString("GET /users"))
+        services[1].expose(Operation.fromString("POST /users"))
+        services[1].expose(Operation.fromString("GET /users/{id}"))
+        services[1].consume(Operation.fromString("GET /users"))
+        services[2].consume(Operation.fromString("POST /users"))
+        services[2].consume(Operation.fromString("GET /users/{id}"))
 
         val expected = mapOf(
-            services[0].name to 0,
+            services[0].name to 1,
             services[1].name to 1,
-            services[2].name to 1
+            services[2].name to 0
         )
 
         val metricExtractor = ClientsThatInvokeOperationsMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentResult).services
+
+        services.forEach { s -> s.accept(metricExtractor) }
+
+        val actual = metricExtractor.getResult().services
 
         assertEquals(expected, actual)
     }
 
     @Test
-    fun `should compute the number of modules that invoke the operations of a given module`() {
-        val system = createSystem()
-        system.addService(
+    fun `should compute the number of different modules that invoke the operations of a given module`() {
+        val services = createServices()
+        services.add(
             Service(
-                id = "4",
                 name = "Data Collector Outro",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "3", "Data Collector")
+                module = Module("Data Collector"),
+                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
             )
         )
 
-        val services = system.services.toList()
-        val modules = system.modules.toList()
+        val modules = services.groupBy { it.module }.keys.toList()
 
-        system.addSyncOperation(SyncCommunication(services[0], services[1], Operation.fromString("GET /users")))
-        system.addSyncOperation(SyncCommunication(services[0], services[3], Operation.fromString("PUT /users/{id}")))
-        system.addSyncOperation(SyncCommunication(services[1], services[2], Operation.fromString("POST /users")))
-        system.addSyncOperation(SyncCommunication(services[1], services[2], Operation.fromString("GET /users/{id}")))
-        system.addSyncOperation(SyncCommunication(services[2], services[3], Operation.fromString("DELETE /users/{id}")))
-        system.addSyncOperation(SyncCommunication(services[3], services[2], Operation.fromString("GET /foo")))
+        services[0].expose(Operation.fromString("GET /users"))
+        services[0].expose(Operation.fromString("PUT /users/{id}"))
+        services[1].expose(Operation.fromString("POST /users"))
+        services[1].expose(Operation.fromString("GET /users/{id}"))
+        services[2].expose(Operation.fromString("DELETE /users/{id}"))
+        services[3].expose(Operation.fromString("GET /foo"))
+        services[1].consume(Operation.fromString("GET /users"))
+        services[3].consume(Operation.fromString("PUT /users/{id}"))
+        services[2].consume(Operation.fromString("POST /users"))
+        services[3].consume(Operation.fromString("GET /users/{id}"))
+        services[3].consume(Operation.fromString("DELETE /users/{id}"))
+        services[2].consume(Operation.fromString("GET /foo"))
 
         val expected = mapOf(
-            modules[0].name to 0,
+            modules[0].name to 2,
             modules[1].name to 1,
-            modules[2].name to 2
+            modules[2].name to 0
         )
 
         val metricExtractor = ClientsThatInvokeOperationsMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentResult).modules
+
+        services.forEach { s -> s.accept(metricExtractor) }
+
+        val actual = metricExtractor.getResult().modules
 
         assertEquals(expected, actual)
     }

@@ -1,89 +1,82 @@
 package com.sortinghat.metrics_extractor.domain.services.size_dimension
 
-import com.sortinghat.metrics_extractor.domain.behaviors.NumberResult
 import com.sortinghat.metrics_extractor.domain.model.Module
 import com.sortinghat.metrics_extractor.domain.model.Service
+import com.sortinghat.metrics_extractor.domain.model.ServiceBasedSystem
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import com.sortinghat.metrics_extractor.domain.model.System
 
 class DeploymentDependencyMetricTest {
 
-    private fun createSystem(): System {
-        val system = System(id = "1", name = "InterSCity", "")
-        system.addService(
+    private fun createServices(): MutableList<Service> {
+        val system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
+        return mutableListOf(
             Service(
-                id = "1",
                 name = "Resource Adaptor",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "1", "Resource Adaptor")
-            )
-        )
-        system.addService(
+                module = Module("Resource Adaptor"),
+                system = system
+            ),
             Service(
-                id = "2",
                 name = "Resource Catalogue",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "2", "Resource Catalog")
-            )
-        )
-        system.addService(
+                module = Module("Resource Catalogue"),
+                system = system
+            ),
             Service(
-                id = "3",
                 name = "Data Collector",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "3", "Data Collector")
+                module = Module("Data Collector"),
+                system = system
             )
         )
-
-        return system
     }
 
     @Test
     fun `should return zero for a system with no services with deployment dependency`() {
-        val system = createSystem()
-        val dependencyMetric = DeploymentDependencyMetric()
-        val (value) = dependencyMetric.execute(system) as NumberResult
+        val services = createServices()
+        val metricExtractor = DeploymentDependencyMetric()
+
+        services.forEach { it.accept(metricExtractor) }
+
+        val (value) = metricExtractor.getResult()
 
         assertEquals(0, value)
     }
 
     @Test
     fun `should detect deployment dependencies between services`() {
-        val system = createSystem()
-        system.addService(
+        val services = createServices()
+        services.add(
             Service(
-                id = "4",
                 name = "Data Collector Outro",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "3", "Data Collector")
+                module = Module(  "Data Collector"),
+                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
             )
         )
-        system.addService(
+        services.add(
             Service(
-                id = "5",
                 name = "Data Collector Outro 2",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "3", "Data Collector")
+                module = Module(  "Data Collector"),
+                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
             )
         )
-        system.addService(
+        services.add(
             Service(
-                id = "6",
                 name = "Resource Adaptor Outro",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "1", "Resource Adaptor")
+                module = Module(  "Resource Adaptor"),
+                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
             )
         )
 
-        val dependencyMetric = DeploymentDependencyMetric()
-        val (value) = dependencyMetric.execute(system) as NumberResult
+        val metricExtractor = DeploymentDependencyMetric()
+
+        services.forEach { it.accept(metricExtractor) }
+
+        val (value) = metricExtractor.getResult()
 
         assertEquals(5, value)
     }

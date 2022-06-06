@@ -7,60 +7,56 @@ import org.junit.jupiter.api.Test
 
 class ClientsThatConsumeMessagesPublishedMetricTest {
 
-    private fun createSystem(): System {
-        val system = System(id = "1", name = "InterSCity", "")
-        system.addService(
+    private fun createServices(): MutableList<Service> {
+        val system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
+        return mutableListOf(
             Service(
-                id = "1",
                 name = "Resource Adaptor",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "1", "Resource Adaptor")
-            )
-        )
-        system.addService(
+                module = Module("Resource Adaptor"),
+                system = system
+            ),
             Service(
-                id = "2",
                 name = "Resource Catalogue",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "2", "Resource Catalog")
-            )
-        )
-        system.addService(
+                module = Module("Resource Catalogue"),
+                system = system
+            ),
             Service(
-                id = "3",
                 name = "Data Collector",
                 responsibility = "",
-                operations = listOf(),
-                module = Module(id = "3", "Data Collector")
+                module = Module("Data Collector"),
+                system = system
             )
         )
-
-        return system
     }
 
     @Test
     fun `should return 0 for all services and modules when there is no async communications`() {
-        val system = createSystem()
-        val expected = PerComponentResult(
-            modules = system.modules.associateWith { 0 }.mapKeys { it.key.name },
-            services = system.services.associateWith { 0 }.mapKeys { it.key.name }
-        )
+        val services = createServices()
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = metricExtractor.execute(system)
+        val expected = PerComponentResult(
+            modules = services.groupBy { it.module }.keys.associateWith { 0 }.mapKeys { it.key.name },
+            services = services.associateWith { 0 }.mapKeys { it.key.name }
+        )
 
-        assertEquals(expected, actual)
+        services.forEach { service -> service.accept(metricExtractor) }
+
+        assertEquals(expected, metricExtractor.getResult())
     }
 
     @Test
-    fun `should compute all async messages that every service publishes in`() {
-        val system = createSystem()
-        val services = system.services.toList()
+    fun `should compute the number of different clients that consume messages published by every service`() {
+        val services = createServices()
 
-        system.addAsyncOperation(AsyncCommunication(services[0], services[1], MessageChannel("Topic1")))
-        system.addAsyncOperation(AsyncCommunication(services[0], services[2], MessageChannel("Topic2")))
-        system.addAsyncOperation(AsyncCommunication(services[1], services[2], MessageChannel("Topic3")))
+        services[0].publishTo(MessageChannel("Topic1"))
+        services[0].publishTo(MessageChannel("Topic2"))
+        services[1].publishTo(MessageChannel("Topic3"))
+        services[0].publishTo(MessageChannel("Topic4"))
+        services[1].subscribeTo(MessageChannel("Topic1"))
+        services[2].subscribeTo(MessageChannel("Topic2"))
+        services[2].subscribeTo(MessageChannel("Topic3"))
+        services[1].subscribeTo(MessageChannel("Topic4"))
 
         val expected = mapOf(
             services[0].name to 2,
@@ -69,64 +65,28 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentResult).services
+
+        services.forEach { service -> service.accept(metricExtractor) }
+
+        val actual = metricExtractor.getResult().services
 
         assertEquals(expected, actual)
     }
 
     @Test
-    fun `should sum the number of async messages that services inside every module publish in`() {
-        val system = createSystem()
-        system.addService(
-            Service(
-                id = "4",
-                name = "Resource Adaptor Outro",
-                responsibility = "",
-                operations = listOf(),
-                module = Module(id = "1", "Resource Adaptor")
-            )
-        )
+    fun `should compute the number of different clients that consume messages published by every module`() {
+        val services = createServices()
 
-        val services = system.services.toList()
-        val modules = system.modules.toList()
+        val modules = services.groupBy { it.module }.keys.toList()
 
-        system.addAsyncOperation(AsyncCommunication(services[0], services[1], MessageChannel("Topic1")))
-        system.addAsyncOperation(AsyncCommunication(services[0], services[2], MessageChannel("Topic2")))
-        system.addAsyncOperation(AsyncCommunication(services[1], services[2], MessageChannel("Topic3")))
-        system.addAsyncOperation(AsyncCommunication(services[3], services[2], MessageChannel("Topic4")))
-
-        val expected = mapOf(
-            modules[0].name to 3,
-            modules[1].name to 1,
-            modules[2].name to 0
-        )
-
-        val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentResult).modules
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun `should not compute async messages between services in the same module`() {
-        val system = createSystem()
-        system.addService(
-            Service(
-                id = "4",
-                name = "Resource Adaptor Outro",
-                responsibility = "",
-                operations = listOf(),
-                module = Module(id = "1", "Resource Adaptor")
-            )
-        )
-
-        val services = system.services.toList()
-        val modules = system.modules.toList()
-
-        system.addAsyncOperation(AsyncCommunication(services[0], services[1], MessageChannel("Topic1")))
-        system.addAsyncOperation(AsyncCommunication(services[0], services[2], MessageChannel("Topic2")))
-        system.addAsyncOperation(AsyncCommunication(services[1], services[2], MessageChannel("Topic3")))
-        system.addAsyncOperation(AsyncCommunication(services[3], services[0], MessageChannel("Topic4")))
+        services[0].publishTo(MessageChannel("Topic1"))
+        services[0].publishTo(MessageChannel("Topic2"))
+        services[1].publishTo(MessageChannel("Topic3"))
+        services[0].publishTo(MessageChannel("Topic4"))
+        services[1].subscribeTo(MessageChannel("Topic1"))
+        services[2].subscribeTo(MessageChannel("Topic2"))
+        services[2].subscribeTo(MessageChannel("Topic3"))
+        services[1].subscribeTo(MessageChannel("Topic4"))
 
         val expected = mapOf(
             modules[0].name to 2,
@@ -135,7 +95,52 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
         )
 
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
-        val actual = (metricExtractor.execute(system) as PerComponentResult).modules
+
+        services.forEach { service -> service.accept(metricExtractor) }
+
+        val actual = metricExtractor.getResult().modules
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `should not compute async messages between services in the same module`() {
+        val services = createServices()
+        services.add(
+            Service(
+                name = "Data Collector Outro",
+                responsibility = "",
+                module = Module("Data Collector"),
+                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
+            )
+        )
+
+        val modules = services.groupBy { it.module }.keys.toList()
+
+        services[0].publishTo(MessageChannel("Topic1"))
+        services[0].publishTo(MessageChannel("Topic2"))
+        services[1].publishTo(MessageChannel("Topic3"))
+        services[1].publishTo(MessageChannel("Topic4"))
+        services[2].publishTo(MessageChannel("Topic5"))
+        services[3].publishTo(MessageChannel("Topic6"))
+        services[1].subscribeTo(MessageChannel("Topic1"))
+        services[3].subscribeTo(MessageChannel("Topic2"))
+        services[2].subscribeTo(MessageChannel("Topic3"))
+        services[3].subscribeTo(MessageChannel("Topic4"))
+        services[3].subscribeTo(MessageChannel("Topic5"))
+        services[2].subscribeTo(MessageChannel("Topic6"))
+
+        val expected = mapOf(
+            modules[0].name to 2,
+            modules[1].name to 1,
+            modules[2].name to 0
+        )
+
+        val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
+
+        services.forEach { service -> service.accept(metricExtractor) }
+
+        val actual = metricExtractor.getResult().modules
 
         assertEquals(expected, actual)
     }

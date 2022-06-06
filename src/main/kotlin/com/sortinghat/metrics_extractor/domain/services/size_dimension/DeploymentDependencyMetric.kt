@@ -1,24 +1,30 @@
 package com.sortinghat.metrics_extractor.domain.services.size_dimension
 
-import com.sortinghat.metrics_extractor.domain.behaviors.ExtractionResult
-import com.sortinghat.metrics_extractor.domain.behaviors.MetricExtractor
-import com.sortinghat.metrics_extractor.domain.behaviors.NumberResult
-import com.sortinghat.metrics_extractor.domain.model.System
+import com.sortinghat.metrics_extractor.domain.behaviors.*
+import com.sortinghat.metrics_extractor.domain.model.Module
+import com.sortinghat.metrics_extractor.domain.model.Service
 
-/**
- * Number of services with deployment dependency
- * Dimension: Size
- */
-class DeploymentDependencyMetric: MetricExtractor {
-    override fun execute(system: System): ExtractionResult {
-        val value = system.services
-            .groupBy { it.module }
-            .values
-            .filter { it.size > 1 }
-            .flatten()
-            .size
+class DeploymentDependencyMetric(
+    private val visitorBag: VisitorBag = VisitorBag()
+) : MetricExtractor, Visitor by visitorBag {
 
-        return NumberResult(value)
+    private val moduleToServices = mutableMapOf<Module, Set<Service>>()
+
+    override fun getResult(): NumberResult {
+        return NumberResult(
+            value = moduleToServices
+                .filterValues { it.size > 1 }
+                .values
+                .fold(0) { sum, services -> sum + services.size }
+        )
+    }
+
+    override fun visit(s: Service) {
+        if (s in visitorBag.visited) return
+
+        visitorBag.addVisited(s)
+        moduleToServices.merge(s.module, setOf(s)) { old, new -> old.plus(new) }
+        s.children().forEach { it.accept(this) }
     }
 
     override fun getMetricDescription(): String {

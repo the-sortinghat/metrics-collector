@@ -6,25 +6,46 @@ data class SystemDto(
     val id: String,
     val name: String,
     val description: String,
-    val modules: List<ModuleDto>,
-    val services: List<ServiceDto>,
-    val databases: List<DatabaseDto>,
-    val databasesUsages: List<DatabaseUsageDto>,
-    val syncOperations: List<OperationDto>,
-    val asyncOperations: List<OperationDto>
+    val modules: Set<ModuleDto>,
+    val services: Set<ServiceDto>,
+    val databases: Set<DatabaseDto>,
+    val databasesUsages: Set<DatabaseUsageDto>,
+    val syncOperations: Set<OperationDto>,
+    val asyncOperations: Set<OperationDto>
 ) {
     companion object {
-        fun create(system: System) = SystemDto(
-            id = system.id,
-            name = system.name,
-            description = system.description,
-            modules = system.modules.map { ModuleDto.create(it) },
-            services = system.services.map { ServiceDto.create(it) },
-            databases = system.databases.map { DatabaseDto.create(it) },
-            databasesUsages = system.usages.map { DatabaseUsageDto.create(it) },
-            syncOperations = system.syncOperations.map { OperationDto.createSynchronous(it) },
-            asyncOperations = system.asyncOperations.map { OperationDto.createAsynchronous(it) },
-        )
+        fun createFromSystems(systems: Set<ServiceBasedSystem>) =
+            systems.map { system ->
+                SystemDto(
+                    id = system.name,
+                    name = system.name,
+                    description = system.description,
+                    modules = setOf(),
+                    services = setOf(),
+                    databases = setOf(),
+                    databasesUsages = setOf(),
+                    syncOperations = setOf(),
+                    asyncOperations = setOf()
+                )
+            }
+
+        fun createFromServices(services: Set<Service>): SystemDto {
+            val system = services.first().system
+            val modules = services.map { service -> service.module }.toSet()
+            val databases = services.fold(setOf<Database>()) { acc, service -> acc.plus(service.databasesUsages) }
+
+            return SystemDto(
+                id = system.name,
+                name = system.name,
+                description = system.description,
+                modules = ModuleDto.createMany(modules),
+                services = ServiceDto.createMany(services),
+                databases = DatabaseDto.createMany(databases),
+                databasesUsages = DatabaseUsageDto.createMany(databases),
+                syncOperations = OperationDto.createManySynchronous(services),
+                asyncOperations = OperationDto.createManyAsynchronous(services),
+            )
+        }
     }
 }
 
@@ -33,10 +54,12 @@ data class ModuleDto(
     val name: String
 ) {
     companion object {
-        fun create(module: Module) = ModuleDto(
-            id = module.id,
-            name = module.name
-        )
+        fun createMany(modules: Set<Module>) =
+            modules
+                .map { module ->
+                    ModuleDto(id = module.name, name = module.name)
+                }
+                .toSet()
     }
 }
 
@@ -48,13 +71,18 @@ data class ServiceDto(
     val moduleId: String
 ) {
     companion object {
-        fun create(service: Service) = ServiceDto(
-            id = service.id,
-            name = service.name,
-            responsibility = service.responsibility,
-            operations = service.operations.map { it.toString() },
-            moduleId = service.module.id
-        )
+        fun createMany(services: Set<Service>) =
+            services
+                .map { service ->
+                    ServiceDto(
+                        id = service.name,
+                        name = service.name,
+                        responsibility = service.responsibility,
+                        operations = service.exposedOperations.map { op -> op.toString() },
+                        moduleId = service.module.name
+                    )
+                }
+                .toSet()
     }
 }
 
@@ -63,28 +91,36 @@ data class DatabaseDto(
     val model: String
 ) {
     companion object {
-        fun create(database: Database) = DatabaseDto(
-            id = database.id,
-            model = database.model.toString()
-        )
+        fun createMany(databases: Set<Database>) =
+            databases
+                .map { db ->
+                    DatabaseDto(id = db.namespace, model = db.model.toString())
+                }
+                .toSet()
     }
 }
 
 data class DatabaseUsageDto(
     val databaseId: String,
     val serviceId: String,
-    val role: String,
     val namespace: String,
     val accessType: String
 ) {
     companion object {
-        fun create(usage: DatabaseUsage) = DatabaseUsageDto(
-            serviceId = usage.service.id,
-            databaseId = usage.database.id,
-            role = usage.role,
-            namespace = usage.namespace,
-            accessType = usage.accessType.toString()
-        )
+        fun createMany(databases: Set<Database>) = databases.fold(setOf<DatabaseUsageDto>()) { acc, database ->
+            acc.plus(
+                database.usages()
+                    .map { service ->
+                        DatabaseUsageDto(
+                            serviceId = service.name,
+                            databaseId = database.namespace,
+                            namespace = database.namespace,
+                            accessType = database.getAccessType(service)!!.toString()
+                        )
+                    }
+                    .toSet()
+            )
+        }
     }
 }
 
@@ -94,16 +130,62 @@ data class OperationDto(
     val label: String
 ) {
     companion object {
-        fun createSynchronous(syncCommunication: SyncCommunication) = OperationDto(
-            from = syncCommunication.from.id,
-            to = syncCommunication.to.id,
-            label = syncCommunication.operation.toString()
-        )
+        fun createManySynchronous(services: Set<Service>): Set<OperationDto> {
+            val serviceToOperations = mutableMapOf<Service, Set<Operation>>()
+            val operationToServices = mutableMapOf<Operation, Set<Service>>()
+            val syncOperations = mutableSetOf<OperationDto>()
 
-        fun createAsynchronous(asyncCommunication: AsyncCommunication) = OperationDto(
-            from = asyncCommunication.from.id,
-            to = asyncCommunication.to.id,
-            label = asyncCommunication.channel.name
-        )
+            services.forEach { service ->
+                serviceToOperations[service] = service.exposedOperations
+                service.consumedOperations.forEach { operation ->
+                    operationToServices.merge(operation, setOf(service)) { old, new -> old.plus(new) }
+                }
+            }
+
+            serviceToOperations.forEach { (service, operations) ->
+                operations.forEach { operation ->
+                    operationToServices.getOrDefault(operation, setOf()).forEach { s ->
+                        syncOperations.add(
+                            OperationDto(
+                                from = s.name,
+                                to = service.name,
+                                label = operation.toString()
+                            )
+                        )
+                    }
+                }
+            }
+
+            return syncOperations
+        }
+
+        fun createManyAsynchronous(services: Set<Service>): Set<OperationDto> {
+            val serviceToChannels = mutableMapOf<Service, Set<MessageChannel>>()
+            val channelToServices = mutableMapOf<MessageChannel, Set<Service>>()
+            val asyncOperations = mutableSetOf<OperationDto>()
+
+            services.forEach { service ->
+                serviceToChannels[service] = service.channelsPublishing
+                service.channelsSubscribing.forEach { channel ->
+                    channelToServices.merge(channel, setOf(service)) { old, new -> old.plus(new) }
+                }
+            }
+
+            serviceToChannels.forEach { (service, channels) ->
+                channels.forEach { channel ->
+                    channelToServices.getOrDefault(channel, setOf()).forEach { s ->
+                        asyncOperations.add(
+                            OperationDto(
+                                from = service.name,
+                                to = s.name,
+                                label = channel.toString()
+                            )
+                        )
+                    }
+                }
+            }
+
+            return asyncOperations
+        }
     }
 }

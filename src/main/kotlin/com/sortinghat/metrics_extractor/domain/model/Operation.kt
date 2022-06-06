@@ -1,10 +1,14 @@
 package com.sortinghat.metrics_extractor.domain.model
 
+import com.sortinghat.metrics_extractor.domain.behaviors.Visitable
+import com.sortinghat.metrics_extractor.domain.behaviors.Visitor
+
 enum class HttpVerb {
     GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD, CONNECT, TRACE
 }
 
-data class Operation(val verb: HttpVerb, val uri: String) {
+data class Operation(val verb: HttpVerb, val uri: String) : Visitable {
+
     companion object {
         fun fromString(url: String): Operation {
             try {
@@ -17,6 +21,12 @@ data class Operation(val verb: HttpVerb, val uri: String) {
             }
         }
     }
+
+    override fun accept(v: Visitor) {
+        v.visit(this)
+    }
+
+    override fun children() = emptySet<Visitable>()
 
     override fun toString() = "$verb $uri"
 }
