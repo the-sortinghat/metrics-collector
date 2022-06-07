@@ -93,12 +93,15 @@ class FetchDataFromSpreadsheets {
                 module = module,
                 system = systemByModule[module]!!
             )
-            row[5]
-                .split(",")
-                .map { s -> s.trim() }
-                .forEach { op ->
-                    service.expose(Operation.fromString(op))
-                }
+
+            if (row[4].trim() != "0") {
+                row[5]
+                    .split(",")
+                    .map { s -> s.trim() }
+                    .forEach { op ->
+                        service.expose(Operation.fromString(op))
+                    }
+            }
 
             serviceById[row[0]] = service
         }
