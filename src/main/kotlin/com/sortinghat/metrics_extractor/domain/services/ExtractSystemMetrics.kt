@@ -49,7 +49,7 @@ class ExtractSystemMetrics(private val repository: ServiceRepository) {
             syncCoupling = syncCouplingMetricsExtractors.fold(mapOf()) { acc, extractor ->
                 acc.plus(extractor.getMetricDescription() to extractor.getResult())
             },
-            asyncCoupling = sizeMetricsExtractors.fold(mapOf()) { acc, extractor ->
+            asyncCoupling = asyncCouplingMetricsExtractors.fold(mapOf()) { acc, extractor ->
                 acc.plus(extractor.getMetricDescription() to extractor.getResult())
             },
         )
