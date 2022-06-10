@@ -34,7 +34,7 @@ class SharedDatabasesMetric(
     }
 
     override fun getMetricDescription(): String {
-        return "Number of data sources that each component share with others"
+        return "Number of data sources that each component shares with others"
     }
 
     override fun visit(s: Service) {
