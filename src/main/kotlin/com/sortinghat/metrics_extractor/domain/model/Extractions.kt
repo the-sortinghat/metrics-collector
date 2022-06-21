@@ -3,7 +3,7 @@ package com.sortinghat.metrics_extractor.domain.model
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.sortinghat.metrics_extractor.domain.behaviors.ExtractionResult
-import com.sortinghat.metrics_extractor.domain.behaviors.NumberResult
+import com.sortinghat.metrics_extractor.domain.behaviors.ValueResult
 
 @Suppress("UNCHECKED_CAST")
 @JsonSerialize
@@ -38,8 +38,8 @@ class Extractions(
 
     private fun mapValues(map: Map<String, ExtractionResult>) =
         map.mapValues {
-            if (it.value is NumberResult) {
-                (it.value as NumberResult).value
+            if (it.value is ValueResult) {
+                (it.value as ValueResult).value
             } else {
                 it.value
             }

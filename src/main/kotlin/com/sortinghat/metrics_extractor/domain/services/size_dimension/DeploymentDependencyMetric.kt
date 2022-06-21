@@ -10,8 +10,8 @@ class DeploymentDependencyMetric(
 
     private val moduleToServices = mutableMapOf<Module, Set<Service>>()
 
-    override fun getResult(): NumberResult {
-        return NumberResult(
+    override fun getResult(): ValueResult {
+        return ValueResult(
             value = moduleToServices
                 .filterValues { it.size > 1 }
                 .values
