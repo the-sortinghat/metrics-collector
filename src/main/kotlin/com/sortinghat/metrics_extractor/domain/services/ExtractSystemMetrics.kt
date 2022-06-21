@@ -9,6 +9,7 @@ import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.
 import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.SharedDatabasesMetric
 import com.sortinghat.metrics_extractor.domain.services.size_dimension.*
 import com.sortinghat.metrics_extractor.domain.services.sync_coupling_dimension.ClientsThatInvokeOperationsMetric
+import com.sortinghat.metrics_extractor.domain.services.sync_coupling_dimension.InvokedOperationsMetric
 
 class ExtractSystemMetrics(private val repository: ServiceRepository) {
 
@@ -29,7 +30,8 @@ class ExtractSystemMetrics(private val repository: ServiceRepository) {
             DatabasesByAccessTypeMetric(DatabaseAccessType.ReadWrite)
         )
         val syncCouplingMetricsExtractors = listOf(
-            ClientsThatInvokeOperationsMetric()
+            ClientsThatInvokeOperationsMetric(),
+            InvokedOperationsMetric()
         )
         val asyncCouplingMetricsExtractors = listOf(
             ClientsThatConsumeMessagesPublishedMetric()
