@@ -1,40 +1,15 @@
 package com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension
 
 import com.sortinghat.metrics_extractor.domain.model.*
+import com.sortinghat.metrics_extractor.domain.services.ServicesBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class DatabasesByAccessTypeMetricTest {
 
-    private fun createServices(): MutableList<Service> {
-        val system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
-        val services = mutableListOf(
-            Service(
-                name = "Resource Adaptor",
-                responsibility = "",
-                module = Module("Resource Adaptor"),
-                system = system
-            ),
-            Service(
-                name = "Resource Catalogue",
-                responsibility = "",
-                module = Module("Resource Catalogue"),
-                system = system
-            ),
-            Service(
-                name = "Data Collector",
-                responsibility = "",
-                module = Module("Data Collector"),
-                system = system
-            )
-        )
-
-        return services
-    }
-
     @Test
     fun `should return the number of data sources that each component performs read-only operations`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         val modules = services.map { s -> s.module }.toSet().toList()
         val databases = listOf(
             Database.create("Resource Adaptor DB", "MySQL"),
@@ -69,7 +44,7 @@ class DatabasesByAccessTypeMetricTest {
 
     @Test
     fun `should return the number of data sources that each component performs write-only operations`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         val modules = services.map { s -> s.module }.toSet().toList()
         val databases = listOf(
             Database.create("Resource Adaptor DB", "MySQL"),
@@ -104,7 +79,7 @@ class DatabasesByAccessTypeMetricTest {
 
     @Test
     fun `should return the number of data sources that each component performs read and write operations`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         val modules = services.map { s -> s.module }.toSet().toList()
         val databases = listOf(
             Database.create("Resource Adaptor DB", "MySQL"),
@@ -139,7 +114,7 @@ class DatabasesByAccessTypeMetricTest {
 
     @Test
     fun `should not count shared databases in the same module more than twice`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         services.add(
             Service(
                 name = "Data Collector Outro",

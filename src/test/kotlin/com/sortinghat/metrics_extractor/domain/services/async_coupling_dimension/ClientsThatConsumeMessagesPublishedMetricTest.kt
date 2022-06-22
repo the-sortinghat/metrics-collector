@@ -2,38 +2,15 @@ package com.sortinghat.metrics_extractor.domain.services.async_coupling_dimensio
 
 import com.sortinghat.metrics_extractor.domain.behaviors.PerComponentResult
 import com.sortinghat.metrics_extractor.domain.model.*
+import com.sortinghat.metrics_extractor.domain.services.ServicesBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class ClientsThatConsumeMessagesPublishedMetricTest {
 
-    private fun createServices(): MutableList<Service> {
-        val system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
-        return mutableListOf(
-            Service(
-                name = "Resource Adaptor",
-                responsibility = "",
-                module = Module("Resource Adaptor"),
-                system = system
-            ),
-            Service(
-                name = "Resource Catalogue",
-                responsibility = "",
-                module = Module("Resource Catalogue"),
-                system = system
-            ),
-            Service(
-                name = "Data Collector",
-                responsibility = "",
-                module = Module("Data Collector"),
-                system = system
-            )
-        )
-    }
-
     @Test
     fun `should return 0 for all services and modules when there is no async communications`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         val metricExtractor = ClientsThatConsumeMessagesPublishedMetric()
         val expected = PerComponentResult(
             modules = services.groupBy { it.module }.keys.associateWith { 0 }.mapKeys { it.key.name },
@@ -47,7 +24,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
 
     @Test
     fun `should compute the number of different clients that consume messages published by every service`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
 
         services[0].publishTo(MessageChannel("Topic1"))
         services[0].publishTo(MessageChannel("Topic2"))
@@ -75,7 +52,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
 
     @Test
     fun `should compute the number of different clients that consume messages published by every module`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
 
         val modules = services.groupBy { it.module }.keys.toList()
 
@@ -105,7 +82,7 @@ class ClientsThatConsumeMessagesPublishedMetricTest {
 
     @Test
     fun `should not compute async messages between services in the same module`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         services.add(
             Service(
                 name = "Data Collector Outro",

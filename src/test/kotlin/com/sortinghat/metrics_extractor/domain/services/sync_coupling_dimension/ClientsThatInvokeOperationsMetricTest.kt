@@ -4,38 +4,15 @@ import com.sortinghat.metrics_extractor.domain.model.Module
 import com.sortinghat.metrics_extractor.domain.model.Operation
 import com.sortinghat.metrics_extractor.domain.model.Service
 import com.sortinghat.metrics_extractor.domain.model.ServiceBasedSystem
+import com.sortinghat.metrics_extractor.domain.services.ServicesBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class ClientsThatInvokeOperationsMetricTest {
 
-    private fun createServices(): MutableList<Service> {
-        val system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity")
-        return mutableListOf(
-            Service(
-                name = "Resource Adaptor",
-                responsibility = "",
-                module = Module("Resource Adaptor"),
-                system = system
-            ),
-            Service(
-                name = "Resource Catalogue",
-                responsibility = "",
-                module = Module("Resource Catalogue"),
-                system = system
-            ),
-            Service(
-                name = "Data Collector",
-                responsibility = "",
-                module = Module("Data Collector"),
-                system = system
-            )
-        )
-    }
-
     @Test
     fun `should compute the number of different services that invoke the operations of a given service`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
 
         services[0].expose(Operation.fromString("GET /users"))
         services[1].expose(Operation.fromString("POST /users"))
@@ -61,7 +38,7 @@ class ClientsThatInvokeOperationsMetricTest {
 
     @Test
     fun `should compute the number of different modules that invoke the operations of a given module`() {
-        val services = createServices()
+        val services = ServicesBuilder().build()
         services.add(
             Service(
                 name = "Data Collector Outro",
