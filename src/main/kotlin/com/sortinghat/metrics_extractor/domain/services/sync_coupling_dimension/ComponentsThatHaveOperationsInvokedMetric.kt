@@ -5,7 +5,7 @@ import com.sortinghat.metrics_extractor.domain.model.Module
 import com.sortinghat.metrics_extractor.domain.model.Operation
 import com.sortinghat.metrics_extractor.domain.model.Service
 
-class InvokedOperationsMetric(
+class ComponentsThatHaveOperationsInvokedMetric(
     private val visitorBag: VisitorBag = VisitorBag()
 ) : MetricExtractor, Visitor by visitorBag {
 

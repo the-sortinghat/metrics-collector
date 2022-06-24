@@ -8,7 +8,7 @@ import com.sortinghat.metrics_extractor.domain.services.ServicesBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class InvokedOperationsMetricTest {
+class ComponentsThatHaveOperationsInvokedMetricTest {
 
     @Test
     fun `should compute the number of different services from which a given service invokes operations`() {
@@ -27,7 +27,7 @@ class InvokedOperationsMetricTest {
             services[2].name to 1
         )
 
-        val metricExtractor = InvokedOperationsMetric()
+        val metricExtractor = ComponentsThatHaveOperationsInvokedMetric()
 
         services.forEach { s -> s.accept(metricExtractor) }
 
@@ -69,7 +69,7 @@ class InvokedOperationsMetricTest {
             modules[2].name to 2
         )
 
-        val metricExtractor = InvokedOperationsMetric()
+        val metricExtractor = ComponentsThatHaveOperationsInvokedMetric()
 
         services.forEach { s -> s.accept(metricExtractor) }
 
