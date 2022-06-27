@@ -4,6 +4,7 @@ import com.sortinghat.metrics_extractor.domain.model.DatabaseAccessType
 import com.sortinghat.metrics_extractor.domain.model.Extractions
 import com.sortinghat.metrics_extractor.domain.model.ServiceRepository
 import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ClientsThatConsumeMessagesPublishedMetric
+import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ComponentsThatConsumeQueueMessagesMetric
 import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ComponentsThatHaveMessagesConsumedMetric
 import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.DataSourcesPerComponentMetric
 import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.DatabasesByAccessTypeMetric
@@ -38,7 +39,8 @@ class ExtractSystemMetrics(private val repository: ServiceRepository) {
         )
         val asyncCouplingMetricsExtractors = listOf(
             ClientsThatConsumeMessagesPublishedMetric(),
-            ComponentsThatHaveMessagesConsumedMetric()
+            ComponentsThatHaveMessagesConsumedMetric(),
+            ComponentsThatConsumeQueueMessagesMetric()
         )
 
         sizeMetricsExtractors.forEach { extractor ->
