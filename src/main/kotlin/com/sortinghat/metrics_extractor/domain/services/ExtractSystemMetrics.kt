@@ -3,10 +3,7 @@ package com.sortinghat.metrics_extractor.domain.services
 import com.sortinghat.metrics_extractor.domain.model.DatabaseAccessType
 import com.sortinghat.metrics_extractor.domain.model.Extractions
 import com.sortinghat.metrics_extractor.domain.model.ServiceRepository
-import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ClientsThatConsumeMessagesPublishedMetric
-import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ComponentsThatConsumeQueueMessagesMetric
-import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ComponentsThatHaveMessagesConsumedMetric
-import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.ComponentsThatPublishQueueMessagesMetric
+import com.sortinghat.metrics_extractor.domain.services.async_coupling_dimension.*
 import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.DataSourcesPerComponentMetric
 import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.DatabasesByAccessTypeMetric
 import com.sortinghat.metrics_extractor.domain.services.data_coupling_dimension.SharedDatabasesMetric
@@ -42,7 +39,8 @@ class ExtractSystemMetrics(private val repository: ServiceRepository) {
             ClientsThatConsumeMessagesPublishedMetric(),
             ComponentsThatHaveMessagesConsumedMetric(),
             ComponentsThatConsumeQueueMessagesMetric(),
-            ComponentsThatPublishQueueMessagesMetric()
+            ComponentsThatPublishQueueMessagesMetric(),
+            MessagesConsumedMetric()
         )
 
         sizeMetricsExtractors.forEach { extractor ->
