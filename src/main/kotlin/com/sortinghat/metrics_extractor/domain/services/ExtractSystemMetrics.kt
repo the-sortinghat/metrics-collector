@@ -37,7 +37,8 @@ class ExtractSystemMetrics(private val repository: ServiceRepository) {
             ComponentsThatHaveMessagesConsumedMetric(),
             ComponentsThatConsumeQueueMessagesMetric(),
             ComponentsThatPublishQueueMessagesMetric(),
-            MessagesConsumedMetric()
+            MessagesConsumedMetric(),
+            MessagesConsumedByEachDependingComponentMetric()
         )
 
         sizeMetricsExtractors.forEach { extractor ->
