@@ -24,19 +24,15 @@ class LargestServiceMetric(
                 }
             }
             .sortedBy { service -> service.name }
-            .joinToString(", ") { service -> service.name }
-            .plus(
-                if (maxNumberOfOperations == 1)
-                    " ($maxNumberOfOperations operation)"
-                else
-                    " ($maxNumberOfOperations operations)"
-            )
+            .map { service -> service.name }
 
         return ValueResult(value = largestServices)
     }
 
     override fun getMetricDescription(): String {
-        return "Largest service"
+        return "Largest service ($maxNumberOfOperations ${
+            if (maxNumberOfOperations == 1) "operation" else "operations"
+        })"
     }
 
     override fun visit(s: Service) {

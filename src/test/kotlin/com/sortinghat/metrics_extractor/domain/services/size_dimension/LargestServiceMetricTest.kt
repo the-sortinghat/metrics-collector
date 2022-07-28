@@ -51,7 +51,7 @@ class LargestServiceMetricTest {
     @Test
     fun `should return the largest service in the system`() {
         val services = createServices()
-        val expected = "Resource Catalogue (6 operations)"
+        val expected = listOf("Resource Catalogue")
 
         val metricExtractor = LargestServiceMetric()
 
@@ -81,31 +81,7 @@ class LargestServiceMetricTest {
                 )
             )
         )
-        val expected = "Actuator Controller, Resource Catalogue (6 operations)"
-
-        val metricExtractor = LargestServiceMetric()
-
-        services.forEach { service -> service.accept(metricExtractor) }
-
-        val actual = metricExtractor.getResult().value
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun `should return operation word in the singular when the largest service has only one operation`() {
-        val services = listOf(
-            Service(
-                name = "Resource Adaptor",
-                responsibility = "",
-                module = Module("AdaptorCollector"),
-                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity"),
-                exposedOperations = mutableSetOf(
-                    Operation(HttpVerb.GET, "/adaptor/bar")
-                )
-            ),
-        )
-        val expected = "Resource Adaptor (1 operation)"
+        val expected = listOf("Actuator Controller", "Resource Catalogue")
 
         val metricExtractor = LargestServiceMetric()
 

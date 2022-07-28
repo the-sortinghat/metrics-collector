@@ -24,19 +24,15 @@ class SmallestServiceMetric(
                 }
             }
             .sortedBy { service -> service.name }
-            .joinToString(", ") { service -> service.name }
-            .plus(
-                if (minNumberOfOperations == 1)
-                    " ($minNumberOfOperations operation)"
-                else
-                    " ($minNumberOfOperations operations)"
-            )
+            .map { service -> service.name }
 
         return ValueResult(value = smallestServices)
     }
 
     override fun getMetricDescription(): String {
-        return "Smallest service"
+        return "Smallest service ($minNumberOfOperations ${
+            if (minNumberOfOperations == 1) "operation" else "operations"
+        })"
     }
 
     override fun visit(s: Service) {

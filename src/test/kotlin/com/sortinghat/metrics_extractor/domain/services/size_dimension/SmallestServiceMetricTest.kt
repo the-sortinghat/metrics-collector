@@ -48,7 +48,7 @@ class SmallestServiceMetricTest {
     @Test
     fun `should return the smallest service in the system`() {
         val services = createServices()
-        val expected = "Resource Adaptor (2 operations)"
+        val expected = listOf("Resource Adaptor")
 
         val metricExtractor = SmallestServiceMetric()
 
@@ -74,31 +74,7 @@ class SmallestServiceMetricTest {
                 )
             )
         )
-        val expected = "Actuator Controller, Resource Adaptor (2 operations)"
-
-        val metricExtractor = SmallestServiceMetric()
-
-        services.forEach { service -> service.accept(metricExtractor) }
-
-        val actual = metricExtractor.getResult().value
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun `should return operation word in the singular when the smallest service has only one operation`() {
-        val services = listOf(
-            Service(
-                name = "Resource Adaptor",
-                responsibility = "",
-                module = Module("AdaptorCollector"),
-                system = ServiceBasedSystem(name = "InterSCity", description = "InterSCity"),
-                exposedOperations = mutableSetOf(
-                    Operation(HttpVerb.GET, "/adaptor/bar")
-                )
-            ),
-        )
-        val expected = "Resource Adaptor (1 operation)"
+        val expected = listOf("Actuator Controller", "Resource Adaptor")
 
         val metricExtractor = SmallestServiceMetric()
 
